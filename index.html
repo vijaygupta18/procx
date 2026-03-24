@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProcX</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* ===== DESIGN SYSTEM ===== */
+:root {
+  /* Spacing scale */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s7: 32px; --s8: 40px; --s9: 48px; --s10: 64px;
+
+  /* Colors - Dark elegant */
+  --bg-0: #07070e;
+  --bg-1: #0d0d18;
+  --bg-2: #13132a;
+  --bg-3: #1a1a3e;
+
+  --surface-0: rgba(255,255,255,0.02);
+  --surface-1: rgba(255,255,255,0.04);
+  --surface-2: rgba(255,255,255,0.06);
+  --surface-3: rgba(255,255,255,0.08);
+
+  --border-0: rgba(255,255,255,0.04);
+  --border-1: rgba(255,255,255,0.08);
+  --border-2: rgba(255,255,255,0.12);
+
+  --text-0: #f0f0f8;
+  --text-1: rgba(255,255,255,0.7);
+  --text-2: rgba(255,255,255,0.45);
+  --text-3: rgba(255,255,255,0.25);
+
+  /* Accent palette */
+  --indigo: #818cf8;
+  --indigo-dim: rgba(129,140,248,0.12);
+  --indigo-glow: rgba(129,140,248,0.25);
+
+  --cyan: #22d3ee;
+  --cyan-dim: rgba(34,211,238,0.1);
+
+  --emerald: #34d399;
+  --emerald-dim: rgba(52,211,153,0.1);
+
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.1);
+  --amber-glow: rgba(251,191,36,0.2);
+
+  --rose: #fb7185;
+  --rose-dim: rgba(251,113,133,0.1);
+  --rose-glow: rgba(251,113,133,0.25);
+
+  --violet: #a78bfa;
+  --sky: #38bdf8;
+
+  --radius: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow-xl: 0 24px 64px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg-0);
+  color: var(--text-0);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== BACKGROUND ===== */
+.bg-scene {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+
+.bg-scene .mesh {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  will-change: transform;
+}
+
+.bg-scene .mesh-1 {
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(99,102,241,0.08), transparent 70%);
+  top: -300px; left: -200px;
+  animation: drift1 25s ease-in-out infinite;
+}
+
+.bg-scene .mesh-2 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(34,211,238,0.06), transparent 70%);
+  bottom: -200px; right: -150px;
+  animation: drift2 30s ease-in-out infinite;
+}
+
+.bg-scene .mesh-3 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(251,113,133,0.05), transparent 70%);
+  top: 40%; left: 60%;
+  animation: drift3 22s ease-in-out infinite;
+}
+
+.bg-scene .grid-overlay {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 70%);
+}
+
+@keyframes drift1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(40px,-30px)} 66%{transform:translate(-20px,40px)} }
+@keyframes drift2 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(-30px,20px)} 66%{transform:translate(30px,-40px)} }
+@keyframes drift3 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-40px,-30px) scale(1.1)} }
+
+/* ===== LAYOUT ===== */
+.app { position: relative; z-index: 1; max-width: 1480px; margin: 0 auto; padding: 24px 28px 100px; }
+
+/* ===== HEADER ===== */
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s7); }
+
+.brand { display: flex; align-items: center; gap: var(--s4); }
+
+.brand-mark {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--indigo), var(--cyan));
+  border-radius: 13px;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 14px; font-weight: 800; color: white;
+  box-shadow: 0 4px 24px var(--indigo-glow), inset 0 1px 0 rgba(255,255,255,0.2);
+  position: relative;
+}
+
+.brand-mark::after {
+  content: ''; position: absolute; inset: 0; border-radius: 13px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+}
+
+.brand-text h1 {
+  font-size: 21px; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--text-0), var(--indigo));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.brand-text .tagline { font-size: 11px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 1px; }
+
+.header-meta { display: flex; align-items: center; gap: var(--s4); }
+
+.live-badge {
+  display: flex; align-items: center; gap: var(--s2);
+  padding: 7px 14px;
+  background: var(--surface-1); border: 1px solid var(--border-1); border-radius: 100px;
+  font-size: 12px; color: var(--text-2); font-weight: 500;
+  backdrop-filter: blur(16px);
+}
+
+.live-pulse { width: 7px; height: 7px; background: var(--emerald); border-radius: 50%; box-shadow: 0 0 10px var(--emerald); animation: livePulse 2s ease-in-out infinite; }
+@keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+.clock { font-family: var(--mono); font-size: 12px; color: var(--text-3); }
+
+.kbd-hint {
+  padding: 5px 10px; background: var(--surface-1); border: 1px solid var(--border-0); border-radius: var(--radius-xs);
+  font-family: var(--mono); font-size: 11px; color: var(--text-3); cursor: pointer;
+}
+.kbd-hint:hover { border-color: var(--border-2); color: var(--text-2); }
+
+/* ===== RECOMMENDATION CARDS ===== */
+.recs { display: flex; gap: var(--s4); margin-bottom: var(--s6); overflow-x: auto; padding-bottom: 4px; }
+
+.rec-card {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: var(--s4);
+  padding: 16px 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius);
+  backdrop-filter: blur(16px);
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  cursor: default;
+  min-width: 320px;
+}
+
+.rec-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+.rec-icon {
+  width: 46px; height: 46px;
+  border-radius: 13px;
+  display: grid; place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.rec-card.memory .rec-icon { background: var(--amber-dim); border: 1px solid rgba(251,191,36,0.15); }
+.rec-card.cpu .rec-icon { background: var(--rose-dim); border: 1px solid rgba(251,113,133,0.15); }
+.rec-card.stale .rec-icon { background: var(--indigo-dim); border: 1px solid rgba(129,140,248,0.15); }
+
+.rec-body { flex: 1; min-width: 0; }
+.rec-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.rec-card.memory .rec-title { color: var(--amber); }
+.rec-card.cpu .rec-title { color: var(--rose); }
+.rec-card.stale .rec-title { color: var(--indigo); }
+.rec-desc { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+.rec-action {
+  padding: 8px 18px; border: none; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+
+.rec-card.memory .rec-action { background: rgba(251,191,36,0.15); color: var(--amber); }
+.rec-card.memory .rec-action:hover { background: var(--amber); color: #000; box-shadow: 0 4px 16px var(--amber-glow); }
+.rec-card.cpu .rec-action { background: rgba(251,113,133,0.15); color: var(--rose); }
+.rec-card.cpu .rec-action:hover { background: var(--rose); color: #000; box-shadow: 0 4px 16px var(--rose-glow); }
+.rec-card.stale .rec-action { background: var(--indigo-dim); color: var(--indigo); }
+.rec-card.stale .rec-action:hover { background: var(--indigo); color: #000; box-shadow: 0 4px 16px var(--indigo-glow); }
+
+/* ===== STAT CARDS ===== */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); margin-bottom: var(--s6); }
+
+.stat {
+  padding: 20px;
+  background: var(--surface-0);
+  border: 1px solid var(--border-0);
+  border-radius: var(--radius);
+  backdrop-filter: blur(16px);
+  position: relative; overflow: hidden;
+  transition: all 0.25s;
+}
+
+.stat:hover { border-color: var(--border-1); }
+
+.stat-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.stat:nth-child(1) .stat-bar { background: linear-gradient(90deg, var(--indigo), var(--violet)); }
+.stat:nth-child(2) .stat-bar { background: linear-gradient(90deg, var(--cyan), var(--sky)); }
+.stat:nth-child(3) .stat-bar { background: linear-gradient(90deg, var(--amber), #f59e0b); }
+.stat:nth-child(4) .stat-bar { background: linear-gradient(90deg, var(--emerald), #10b981); }
+
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-3); margin-bottom: 8px; }
+
+.stat-value {
+  font-size: 28px; font-weight: 800; letter-spacing: -1px; line-height: 1;
+  font-feature-settings: 'tnum' 1;
+  transition: color 0.3s;
+}
+
+.stat:nth-child(1) .stat-value { color: var(--indigo); }
+.stat:nth-child(2) .stat-value { color: var(--cyan); }
+.stat:nth-child(3) .stat-value { color: var(--amber); }
+.stat:nth-child(4) .stat-value { color: var(--emerald); }
+
+.stat-sub { font-size: 11px; color: var(--text-3); margin-top: 6px; font-weight: 500; }
+
+.stat canvas { position: absolute; bottom: 0; right: 0; width: 110px; height: 44px; opacity: 0.35; }
+
+/* ===== MEMORY MAP ===== */
+.memmap-section {
+  margin-bottom: var(--s6);
+}
+
+.section-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s3);
+}
+
+.section-title { font-size: 13px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 1px; }
+
+.memmap {
+  display: flex; gap: 3px; height: 48px;
+  background: var(--surface-0);
+  border: 1px solid var(--border-0);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  overflow: hidden;
+}
+
+.memmap-block {
+  border-radius: var(--radius-xs);
+  min-width: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.memmap-block:hover {
+  transform: scaleY(1.08);
+  filter: brightness(1.3);
+  z-index: 2;
+}
+
+.memmap-block .mm-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+}
+
+.memmap-tooltip {
+  position: fixed;
+  padding: 10px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-1);
+  pointer-events: none;
+  z-index: 500;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  backdrop-filter: blur(16px);
+}
+
+.memmap-tooltip .tt-name { font-weight: 700; color: var(--text-0); margin-bottom: 2px; }
+.memmap-tooltip .tt-detail { color: var(--text-2); }
+
+/* ===== TOOLBAR ===== */
+.toolbar { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s4); flex-wrap: wrap; }
+
+.tab-bar {
+  display: flex; gap: 2px;
+  background: var(--surface-0); border: 1px solid var(--border-0); border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.tab {
+  padding: 8px 16px; border: none; background: transparent;
+  color: var(--text-2); font-size: 13px; font-weight: 500; font-family: var(--font);
+  border-radius: var(--radius-xs); cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.tab:hover { color: var(--text-1); background: var(--surface-1); }
+
+.tab.active { background: var(--indigo); color: white; box-shadow: 0 2px 8px var(--indigo-glow); }
+
+.tab-count {
+  font-size: 10px; font-weight: 700; font-family: var(--mono);
+  background: rgba(255,255,255,0.12); padding: 1px 6px; border-radius: 10px;
+}
+
+.tab.active .tab-count { background: rgba(255,255,255,0.22); }
+
+.search-wrap {
+  position: relative; flex: 1; max-width: 300px;
+}
+
+.search-wrap .s-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; color: var(--text-3);
+}
+
+.search-wrap input {
+  width: 100%; padding: 9px 14px 9px 38px;
+  background: var(--surface-0); border: 1px solid var(--border-0);
+  color: var(--text-0); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font); outline: none;
+  transition: all 0.2s;
+}
+
+.search-wrap input:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-glow); }
+.search-wrap input::placeholder { color: var(--text-3); }
+
+.search-wrap .s-shortcut {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  padding: 2px 7px; background: var(--surface-1); border: 1px solid var(--border-0);
+  border-radius: 4px; font-family: var(--mono); font-size: 10px; color: var(--text-3);
+}
+
+.toolbar-right { display: flex; gap: var(--s2); align-items: center; margin-left: auto; }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  background: var(--surface-0); border: 1px solid var(--border-0);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
+  color: var(--text-2);
+}
+
+.icon-btn:hover { border-color: var(--border-2); color: var(--text-0); background: var(--surface-1); }
+.icon-btn svg { width: 16px; height: 16px; }
+
+.view-toggle {
+  display: flex; background: var(--surface-0); border: 1px solid var(--border-0);
+  border-radius: var(--radius-sm); overflow: hidden;
+}
+
+.view-btn {
+  padding: 8px 12px; border: none; background: transparent;
+  color: var(--text-3); cursor: pointer; transition: all 0.2s;
+  display: grid; place-items: center; font-family: var(--font);
+}
+
+.view-btn:hover { color: var(--text-1); }
+.view-btn.active { background: var(--surface-2); color: var(--text-0); }
+.view-btn svg { width: 14px; height: 14px; }
+
+.toggle-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-3); cursor: pointer;
+}
+
+.switch {
+  position: relative; width: 34px; height: 18px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--surface-2); border: 1px solid var(--border-1);
+  border-radius: 9px; cursor: pointer; transition: all 0.25s; outline: none;
+}
+
+.switch::before {
+  content: ''; position: absolute; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--text-3); top: 2px; left: 2px;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+.switch:checked { background: var(--indigo); border-color: var(--indigo); }
+.switch:checked::before { transform: translateX(16px); background: white; }
+
+/* ===== TABLE ===== */
+.table-card {
+  background: var(--surface-0); border: 1px solid var(--border-0);
+  border-radius: var(--radius); overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  text-align: left; padding: 13px 16px;
+  background: var(--surface-1); color: var(--text-3);
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; border-bottom: 1px solid var(--border-0);
+  cursor: pointer; user-select: none; position: sticky; top: 0; z-index: 5;
+  transition: color 0.15s; white-space: nowrap;
+}
+
+thead th:hover { color: var(--text-1); }
+thead th.sorted { color: var(--indigo); }
+
+.sort-arr { margin-left: 3px; font-size: 9px; transition: transform 0.2s; display: inline-block; }
+.sort-arr.up { transform: rotate(180deg); }
+
+tbody tr {
+  border-bottom: 1px solid var(--border-0);
+  transition: background 0.12s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface-1); }
+
+tbody tr.row-idle { background: var(--amber-dim); }
+tbody tr.row-idle:hover { background: rgba(251,191,36,0.14); }
+
+tbody tr.row-hog { background: var(--rose-dim); }
+tbody tr.row-hog:hover { background: rgba(251,113,133,0.16); }
+
+tbody tr.row-selected { background: var(--indigo-dim); border-left: 3px solid var(--indigo); }
+
+tbody tr.row-group {
+  background: var(--surface-1);
+  cursor: pointer;
+}
+tbody tr.row-group:hover { background: var(--surface-2); }
+
+tbody tr.row-child { background: var(--surface-0); }
+tbody tr.row-child td:nth-child(3) { padding-left: 48px; }
+
+td { padding: 10px 16px; vertical-align: middle; font-size: 13px; }
+
+.cell-check { width: 40px; text-align: center; }
+
+.custom-check {
+  -webkit-appearance: none; appearance: none;
+  width: 17px; height: 17px;
+  border: 2px solid var(--border-1); border-radius: 5px;
+  cursor: pointer; transition: all 0.15s; background: transparent;
+  position: relative;
+}
+
+.custom-check:hover { border-color: var(--indigo); }
+.custom-check:checked { background: var(--indigo); border-color: var(--indigo); }
+.custom-check:checked::after {
+  content: ''; position: absolute; left: 4.5px; top: 1.5px;
+  width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.cell-pid { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+
+.proc-row { display: flex; align-items: center; gap: 12px; }
+
+.proc-avatar {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 12px; font-weight: 800; color: white;
+  flex-shrink: 0; position: relative;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.proc-avatar.grouped {
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 2px 2px 0 0 rgba(255,255,255,0.05), 4px 4px 0 0 rgba(255,255,255,0.02);
+}
+
+.proc-meta { min-width: 0; }
+
+.proc-name {
+  font-weight: 600; font-size: 13px; color: var(--text-0);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.proc-name .group-count {
+  font-size: 10px; font-weight: 700; font-family: var(--mono);
+  background: var(--surface-2); padding: 1px 6px; border-radius: 10px;
+  color: var(--text-2);
+}
+
+.proc-name .expand-icon {
+  font-size: 10px; color: var(--text-3); transition: transform 0.2s;
+  display: inline-block; margin-right: 2px;
+}
+
+.proc-name .expand-icon.open { transform: rotate(90deg); }
+
+.proc-cmd {
+  font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; max-width: 300px; margin-top: 1px; cursor: help;
+}
+
+/* CPU visualization */
+.cpu-vis { display: flex; align-items: center; gap: 8px; }
+
+.cpu-ring-wrap { position: relative; width: 30px; height: 30px; }
+.cpu-ring-wrap svg { transform: rotate(-90deg); }
+.cpu-ring-wrap .ring-bg { stroke: var(--surface-2); }
+.cpu-ring-wrap .ring-fill { stroke-linecap: round; transition: stroke-dashoffset 0.5s cubic-bezier(0.4,0,0.2,1), stroke 0.3s; }
+
+.cpu-text {
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  font-feature-settings: 'tnum' 1;
+}
+
+.cpu-text.c-crit { color: var(--rose); }
+.cpu-text.c-high { color: var(--amber); }
+.cpu-text.c-med { color: var(--emerald); }
+.cpu-text.c-low { color: var(--text-3); }
+
+/* Memory bar */
+.mem-vis { display: flex; flex-direction: column; gap: 4px; min-width: 110px; }
+
+.mem-text {
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  font-feature-settings: 'tnum' 1;
+}
+
+.mem-track { width: 100%; height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+.mem-bar { height: 100%; border-radius: 2px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+.cell-uptime { font-family: var(--mono); font-size: 11px; color: var(--text-2); white-space: nowrap; }
+
+/* Port tags */
+.port-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; margin: 1px 2px;
+  background: var(--cyan-dim); border: 1px solid rgba(34,211,238,0.12);
+  border-radius: 20px; font-family: var(--mono); font-size: 10px;
+  font-weight: 600; color: var(--cyan); transition: all 0.15s;
+}
+
+.port-tag:hover { background: rgba(34,211,238,0.18); }
+.port-dot { width: 4px; height: 4px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 4px var(--cyan); }
+
+/* Status badges */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.badge-idle { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(251,191,36,0.15); }
+.badge-active { background: var(--emerald-dim); color: var(--emerald); border: 1px solid rgba(52,211,153,0.15); }
+.badge-hog { background: var(--rose-dim); color: var(--rose); border: 1px solid rgba(251,113,133,0.15); animation: hogPulse 2.5s ease-in-out infinite; }
+
+@keyframes hogPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 12px var(--rose-glow)} }
+
+/* Kill button */
+.kill-btn {
+  padding: 5px 12px; border: 1px solid rgba(251,113,133,0.2);
+  background: rgba(251,113,133,0.05); color: var(--rose);
+  border-radius: var(--radius-xs); cursor: pointer;
+  font-size: 11px; font-weight: 600; font-family: var(--font);
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;
+}
+
+.kill-btn:hover { background: var(--rose); color: white; box-shadow: 0 3px 12px var(--rose-glow); transform: translateY(-1px); }
+.kill-btn svg { width: 11px; height: 11px; }
+
+/* ===== ACTION BAR ===== */
+.action-bar {
+  position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-1); border: 1px solid var(--border-1);
+  border-radius: var(--radius); padding: 12px 20px;
+  display: flex; align-items: center; gap: var(--s5);
+  z-index: 100; backdrop-filter: blur(24px);
+  box-shadow: var(--shadow-xl);
+  transition: bottom 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+.action-bar.show { bottom: 24px; }
+.action-bar .ab-info { font-size: 13px; color: var(--text-2); font-weight: 500; }
+.action-bar .ab-info strong { color: var(--indigo); }
+
+.ab-btn {
+  padding: 9px 20px; border: none; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all 0.2s;
+}
+
+.ab-clear { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border-1); }
+.ab-clear:hover { color: var(--text-0); border-color: var(--border-2); }
+
+.ab-kill { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 4px 16px rgba(239,68,68,0.25); }
+.ab-kill:hover { box-shadow: 0 6px 24px rgba(239,68,68,0.35); transform: translateY(-1px); }
+
+/* ===== MODAL ===== */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px); z-index: 200;
+  display: grid; place-items: center;
+  opacity: 0; visibility: hidden; transition: all 0.25s;
+}
+
+.modal-bg.open { opacity: 1; visibility: visible; }
+
+.modal-box {
+  background: var(--bg-1); border: 1px solid var(--border-1);
+  border-radius: 20px; padding: 28px; width: 440px; max-width: 92vw;
+  transform: scale(0.92) translateY(16px);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-bg.open .modal-box { transform: scale(1) translateY(0); }
+
+.modal-box h2 { font-size: 17px; font-weight: 700; color: var(--text-0); margin-bottom: 6px; }
+.modal-box p { font-size: 13px; color: var(--text-2); line-height: 1.5; margin-bottom: 20px; }
+
+.modal-preview {
+  background: var(--surface-1); border: 1px solid var(--border-0);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+  margin-bottom: 24px; font-family: var(--mono); font-size: 12px;
+  color: var(--text-2); max-height: 160px; overflow-y: auto;
+}
+
+.modal-preview .mp-name { color: var(--text-0); font-weight: 700; font-size: 14px; margin-bottom: 4px; font-family: var(--font); }
+
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+
+.modal-footer button {
+  padding: 10px 22px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all 0.2s;
+}
+
+.m-cancel { border: 1px solid var(--border-1); background: transparent; color: var(--text-2); }
+.m-cancel:hover { color: var(--text-0); border-color: var(--border-2); }
+
+.m-confirm { border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.25); }
+.m-confirm:hover { box-shadow: 0 6px 20px rgba(239,68,68,0.35); transform: translateY(-1px); }
+
+/* ===== TOASTS ===== */
+.toast-zone { position: fixed; top: 20px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+
+.toast {
+  padding: 12px 18px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px;
+  backdrop-filter: blur(16px); box-shadow: var(--shadow-lg);
+  animation: toastSlide 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+.toast.ok { background: rgba(52,211,153,0.12); color: var(--emerald); border: 1px solid rgba(52,211,153,0.15); }
+.toast.err { background: rgba(251,113,133,0.12); color: var(--rose); border: 1px solid rgba(251,113,133,0.15); }
+.toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+@keyframes toastSlide { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+
+.empty-state { padding: 60px 20px; text-align: center; }
+.empty-state .es-icon { font-size: 36px; opacity: 0.15; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; color: var(--text-3); }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+</style>
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="mesh mesh-1"></div>
+  <div class="mesh mesh-2"></div>
+  <div class="mesh mesh-3"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-mark">PX</div>
+      <div class="brand-text">
+        <h1>ProcX</h1>
+        <div class="tagline">Process Intelligence</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live-badge"><div class="live-pulse"></div> Live <span class="clock" id="clock"></span></div>
+      <div class="kbd-hint" title="Press / to search" onclick="document.getElementById('search').focus()">/ search</div>
+    </div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="recs" id="recs"></div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-bar"></div>
+      <div class="stat-label">Processes</div>
+      <div class="stat-value" id="sProcs">-</div>
+      <div class="stat-sub" id="sProcsD">loading...</div>
+    </div>
+    <div class="stat">
+      <div class="stat-bar"></div>
+      <div class="stat-label">System CPU</div>
+      <div class="stat-value" id="sCpu">-</div>
+      <div class="stat-sub" id="sCpuD"></div>
+      <canvas id="cpuSpark"></canvas>
+    </div>
+    <div class="stat">
+      <div class="stat-bar"></div>
+      <div class="stat-label">System Memory</div>
+      <div class="stat-value" id="sMem">-</div>
+      <div class="stat-sub" id="sMemD"></div>
+      <canvas id="memSpark"></canvas>
+    </div>
+    <div class="stat">
+      <div class="stat-bar"></div>
+      <div class="stat-label">Open Ports</div>
+      <div class="stat-value" id="sPorts">-</div>
+      <div class="stat-sub" id="sPortsD"></div>
+    </div>
+  </div>
+
+  <!-- MEMORY MAP -->
+  <div class="memmap-section">
+    <div class="section-header">
+      <div class="section-title">Memory Treemap</div>
+    </div>
+    <div class="memmap" id="memmap"></div>
+    <div class="memmap-tooltip" id="mmTooltip"></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="tab-bar" id="tabs">
+      <button class="tab active" data-f="apps">Apps <span class="tab-count" id="cApps">0</span></button>
+      <button class="tab" data-f="ports">Ports <span class="tab-count" id="cPorts">0</span></button>
+      <button class="tab" data-f="idle">Idle <span class="tab-count" id="cIdle">0</span></button>
+      <button class="tab" data-f="hogs">Hogs <span class="tab-count" id="cHogs">0</span></button>
+      <button class="tab" data-f="all">All <span class="tab-count" id="cAll">0</span></button>
+    </div>
+    <div class="search-wrap">
+      <svg class="s-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="search" type="text" placeholder="Search by name, pid, port...">
+      <span class="s-shortcut">/</span>
+    </div>
+    <div class="toolbar-right">
+      <button class="icon-btn" onclick="loadData()" title="Refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><polyline points="21 3 21 9 15 9"/></svg>
+      </button>
+      <label class="toggle-label"><input type="checkbox" class="switch" id="autoRef" checked> Auto</label>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th class="cell-check"><input type="checkbox" class="custom-check" id="selAll"></th>
+          <th data-s="pid">PID <span class="sort-arr"></span></th>
+          <th data-s="name">Process <span class="sort-arr"></span></th>
+          <th data-s="cpu" class="sorted">CPU <span class="sort-arr">▾</span></th>
+          <th data-s="rss_mb">Memory <span class="sort-arr"></span></th>
+          <th data-s="elapsed">Uptime <span class="sort-arr"></span></th>
+          <th>Ports</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar" id="actBar">
+  <div class="ab-info"><strong id="selCount">0</strong> selected</div>
+  <button class="ab-btn ab-clear" onclick="clearSel()">Clear</button>
+  <button class="ab-btn ab-kill" onclick="killSel()">Terminate All</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal-box">
+    <h2 id="mTitle">Terminate Process</h2>
+    <p id="mDesc">This will send SIGTERM. The process may take a moment to exit.</p>
+    <div class="modal-preview" id="mPreview"></div>
+    <div class="modal-footer">
+      <button class="m-cancel" onclick="closeModal()">Cancel <span style="font-family:var(--mono);font-size:10px;opacity:0.5;margin-left:4px">esc</span></button>
+      <button class="m-confirm" id="mConfirm">Terminate</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-zone" id="toasts"></div>
+
+<script>
+// ===== STATE =====
+let data = { processes: [], groups: [], stats: {}, recommendations: [] };
+let filter = "apps";
+let sort = { key: "cpu", desc: true };
+let sel = new Set();
+let expanded = new Set(); // expanded group names
+let refreshTimer = null;
+let cpuHist = [], memHist = [];
+const HLEN = 40;
+
+// ===== THEMES =====
+const themes = {
+  'Cursor': { i:'Cu', bg:'linear-gradient(135deg,#6366f1,#8b5cf6)' },
+  'VS Code': { i:'VS', bg:'linear-gradient(135deg,#0078d4,#005a9e)' },
+  'Claude Code': { i:'Cl', bg:'linear-gradient(135deg,#d97706,#92400e)' },
+  'IntelliJ IDEA':{ i:'IJ', bg:'linear-gradient(135deg,#f97316,#dc2626)' },
+  'Comet': { i:'Co', bg:'linear-gradient(135deg,#8b5cf6,#a855f7)' },
+  'ChatGPT': { i:'AI', bg:'linear-gradient(135deg,#10a37f,#059669)' },
+  'iTerm2': { i:'iT', bg:'linear-gradient(135deg,#16a34a,#047857)' },
+  'node': { i:'No', bg:'linear-gradient(135deg,#22c55e,#15803d)' },
+  'python': { i:'Py', bg:'linear-gradient(135deg,#3b82f6,#eab308)' },
+  'postgres': { i:'PG', bg:'linear-gradient(135deg,#336791,#2d5f8a)' },
+  'redis': { i:'Re', bg:'linear-gradient(135deg,#ef4444,#b91c1c)' },
+  'Docker': { i:'Dk', bg:'linear-gradient(135deg,#2496ed,#1a7bc4)' },
+  'Safari': { i:'Sa', bg:'linear-gradient(135deg,#0ea5e9,#6366f1)' },
+  'Chrome': { i:'Gc', bg:'linear-gradient(135deg,#ea4335,#fbbc05)' },
+  'esbuild': { i:'ES', bg:'linear-gradient(135deg,#f59e0b,#d97706)' },
+  'vite': { i:'Vi', bg:'linear-gradient(135deg,#a855f7,#7c3aed)' },
+  'Slack': { i:'Sl', bg:'linear-gradient(135deg,#611f69,#e01e5a)' },
+  'CopyClip': { i:'CC', bg:'linear-gradient(135deg,#0ea5e9,#0284c7)' },
+  'WindowServer': { i:'WS', bg:'linear-gradient(135deg,#6b7280,#4b5563)' },
+  'Finder': { i:'Fi', bg:'linear-gradient(135deg,#3b82f6,#2563eb)' },
+};
+
+function theme(name) {
+  for (const [k,v] of Object.entries(themes)) { if (name.includes(k)) return v; }
+  let h = 0; for (let i=0;i<name.length;i++) h = name.charCodeAt(i)+((h<<5)-h);
+  h = Math.abs(h) % 360;
+  return { i: name.substring(0,2).toUpperCase(), bg: `linear-gradient(135deg,hsl(${h},45%,35%),hsl(${(h+35)%360},45%,25%))` };
+}
+
+// ===== COLORS =====
+const COLORS = [
+  '#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899','#f43f5e','#ef4444',
+  '#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#14b8a6','#06b6d4',
+  '#0ea5e9','#3b82f6','#818cf8',
+];
+
+function cpuColor(v) { return v>=50?'var(--rose)':v>=15?'var(--amber)':v>=1?'var(--emerald)':'var(--text-3)'; }
+function cpuCls(v) { return v>=50?'c-crit':v>=15?'c-high':v>=1?'c-med':'c-low'; }
+function memColor(mb) { return mb>=500?'var(--rose)':mb>=200?'var(--amber)':mb>=50?'var(--cyan)':'var(--emerald)'; }
+function isHog(p) { return p.cpu >= 50 || p.rss_mb >= 500; }
+
+function elapsed2s(s) {
+  let d=0, r=s;
+  if (s.includes("-")) { const p=s.split("-"); d=parseInt(p[0])||0; r=p[1]; }
+  const p=r.split(":").map(Number);
+  let sec=d*86400;
+  if(p.length===3) sec+=p[0]*3600+p[1]*60+p[2];
+  else if(p.length===2) sec+=p[0]*60+p[1];
+  else sec+=p[0];
+  return sec;
+}
+
+function fmtUptime(s) {
+  if(s.includes("-")){const[d,t]=s.split("-");return d+"d "+t.split(":")[0]+"h";}
+  return s;
+}
+
+function fmtMem(mb) { return mb>=1024?(mb/1024).toFixed(1)+" GB":Math.round(mb)+" MB"; }
+
+function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+
+// ===== INIT =====
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  t.classList.add("active"); filter = t.dataset.f; render();
+}));
+
+document.getElementById("search").addEventListener("input", render);
+
+document.querySelectorAll("thead th[data-s]").forEach(th => th.addEventListener("click", () => {
+  const k = th.dataset.s;
+  if (sort.key === k) sort.desc = !sort.desc; else sort = { key: k, desc: true };
+  document.querySelectorAll("thead th").forEach(t => {
+    t.classList.remove("sorted");
+    const a = t.querySelector(".sort-arr"); if(a){a.textContent="";a.classList.remove("up");}
+  });
+  th.classList.add("sorted");
+  const a = th.querySelector(".sort-arr");
+  if(a){a.textContent="▾";a.classList.toggle("up",!sort.desc);}
+  render();
+}));
+
+document.getElementById("selAll").addEventListener("change", e => {
+  const vis = getVisible();
+  if(e.target.checked) vis.forEach(r => { if(r.pids) r.pids.forEach(p=>sel.add(p)); else sel.add(r.pid); });
+  else sel.clear();
+  render(); updateBar();
+});
+
+document.getElementById("autoRef").addEventListener("change", e => { if(e.target.checked) startAuto(); else stopAuto(); });
+
+document.addEventListener("keydown", e => {
+  if(e.key==="Escape") closeModal();
+  if(e.key==="/" && document.activeElement.tagName!=="INPUT") { e.preventDefault(); document.getElementById("search").focus(); }
+});
+
+function startAuto() { stopAuto(); refreshTimer=setInterval(loadData,5000); }
+function stopAuto() { if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null;} }
+
+// ===== BUILD VISIBLE ROWS =====
+function getVisible() {
+  const q = document.getElementById("search").value.toLowerCase();
+  let procs = data.processes;
+
+  // Build combined list: groups + ungrouped
+  const grouped = new Set();
+  const rows = [];
+
+  // Add groups
+  data.groups.forEach(g => {
+    g.pids.forEach(p => grouped.add(p));
+    rows.push({ ...g, type: "group", pid: g.pids[0], category: "app" });
+  });
+
+  // Add ungrouped
+  procs.forEach(p => {
+    if (!grouped.has(p.pid)) rows.push({ ...p, type: "process" });
+  });
+
+  let filtered = rows;
+
+  if (filter === "apps") filtered = filtered.filter(r => r.category === "app");
+  else if (filter === "ports") filtered = filtered.filter(r => (r.ports||[]).length > 0);
+  else if (filter === "idle") filtered = filtered.filter(r => r.idle);
+  else if (filter === "hogs") filtered = filtered.filter(r => isHog(r));
+
+  if (q) {
+    filtered = filtered.filter(r =>
+      (r.name||"").toLowerCase().includes(q) ||
+      (r.command||"").toLowerCase().includes(q) ||
+      String(r.pid).includes(q) ||
+      (r.ports||[]).some(p => p.includes(q))
+    );
+  }
+
+  filtered.sort((a,b) => {
+    let va=a[sort.key], vb=b[sort.key];
+    if(sort.key==="elapsed"){va=elapsed2s(va||"0");vb=elapsed2s(vb||"0");}
+    else if(typeof va==="string"){va=(va||"").toLowerCase();vb=(vb||"").toLowerCase();}
+    if(va<vb) return sort.desc?1:-1;
+    if(va>vb) return sort.desc?-1:1;
+    return 0;
+  });
+
+  return filtered;
+}
+
+// ===== RENDER =====
+function render() {
+  const rows = getVisible();
+  const tbody = document.getElementById("tbody");
+  const allApps = data.processes.filter(p => p.category === "app");
+  const grouped = new Set(); data.groups.forEach(g => g.pids.forEach(p => grouped.add(p)));
+
+  // Counts
+  const groupRows = data.groups.length;
+  const ungroupedApps = allApps.filter(p => !grouped.has(p.pid));
+  document.getElementById("cApps").textContent = groupRows + ungroupedApps.length;
+  document.getElementById("cPorts").textContent = data.processes.filter(p=>p.ports.length>0).length + data.groups.filter(g=>g.ports.length>0).length;
+  document.getElementById("cIdle").textContent = data.processes.filter(p=>p.idle&&!grouped.has(p.pid)).length + data.groups.filter(g=>g.idle).length;
+  document.getElementById("cHogs").textContent = data.processes.filter(p=>isHog(p)&&!grouped.has(p.pid)).length + data.groups.filter(g=>isHog(g)).length;
+  document.getElementById("cAll").textContent = data.processes.length;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="es-icon">&#9775;</div><p>No processes match your filter</p></div></td></tr>';
+    return;
+  }
+
+  let html = "";
+
+  rows.forEach(r => {
+    if (r.type === "group") {
+      const t = theme(r.name);
+      const isExp = expanded.has(r.name);
+      const allSel = r.pids.every(p => sel.has(p));
+      let cls = allSel ? "row-selected" : r.idle ? "row-idle" : isHog(r) ? "row-hog" : "";
+
+      let badge = "";
+      if (isHog(r)) badge = '<span class="badge badge-hog">Hog</span>';
+      else if (r.idle) badge = '<span class="badge badge-idle">Idle</span>';
+      else if (r.cpu >= 1) badge = '<span class="badge badge-active">Active</span>';
+
+      html += `<tr class="row-group ${cls}" onclick="toggleGroup('${esc(r.name)}')">
+        <td class="cell-check" onclick="event.stopPropagation()"><input type="checkbox" class="custom-check" ${allSel?"checked":""} onchange="toggleGroupSel('${esc(r.name)}',this.checked)"></td>
+        <td class="cell-pid">${r.count}x</td>
+        <td><div class="proc-row">
+          <div class="proc-avatar grouped" style="background:${t.bg}">${t.i}</div>
+          <div class="proc-meta">
+            <div class="proc-name"><span class="expand-icon ${isExp?'open':''}">&#9654;</span> ${esc(r.name)} <span class="group-count">${r.count} processes</span></div>
+            <div class="proc-cmd">Grouped application</div>
+          </div>
+        </div></td>
+        <td class="cpu-cell"><div class="cpu-vis">${ringSvg(r.cpu)}<span class="cpu-text ${cpuCls(r.cpu)}">${r.cpu.toFixed(1)}%</span></div></td>
+        <td class="mem-cell"><div class="mem-vis"><span class="mem-text" style="color:${memColor(r.rss_mb)}">${fmtMem(r.rss_mb)}</span><div class="mem-track"><div class="mem-bar" style="width:${Math.min(r.rss_mb/20,100)}%;background:${memColor(r.rss_mb)}"></div></div></div></td>
+        <td class="cell-uptime">-</td>
+        <td>${(r.ports||[]).map(p=>`<span class="port-tag"><span class="port-dot"></span>${p}</span>`).join("")||'<span style="color:var(--text-3)">-</span>'}</td>
+        <td>${badge}</td>
+        <td class="action-cell"><button class="kill-btn" onclick="event.stopPropagation();confirmKillGroup('${esc(r.name)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>Kill All</button></td>
+      </tr>`;
+
+      // Expanded children
+      if (isExp) {
+        const children = data.processes.filter(p => r.pids.includes(p.pid));
+        children.sort((a,b) => b.cpu - a.cpu);
+        children.forEach(c => {
+          const ct = theme(c.name);
+          const isSel = sel.has(c.pid);
+          html += buildRow(c, ct, isSel, true);
+        });
+      }
+    } else {
+      const t = theme(r.name);
+      const isSel = sel.has(r.pid);
+      html += buildRow(r, t, isSel, false);
+    }
+  });
+
+  tbody.innerHTML = html;
+  renderStats();
+  renderMemmap();
+}
+
+function buildRow(p, t, isSel, isChild) {
+  let cls = isSel ? "row-selected" : p.idle ? "row-idle" : isHog(p) ? "row-hog" : "";
+  if (isChild) cls += " row-child";
+
+  let badge = "";
+  if (isHog(p)) badge = '<span class="badge badge-hog">Hog</span>';
+  else if (p.idle) badge = '<span class="badge badge-idle">Idle</span>';
+  else if (p.cpu >= 1) badge = '<span class="badge badge-active">Active</span>';
+
+  return `<tr class="${cls}">
+    <td class="cell-check"><input type="checkbox" class="custom-check" ${isSel?"checked":""} onchange="toggleSel(${p.pid})"></td>
+    <td class="cell-pid">${p.pid}</td>
+    <td><div class="proc-row">
+      <div class="proc-avatar" style="background:${t.bg}">${t.i}</div>
+      <div class="proc-meta">
+        <div class="proc-name">${esc(p.name)}</div>
+        <div class="proc-cmd" title="${esc(p.command)}">${esc(p.command)}</div>
+      </div>
+    </div></td>
+    <td><div class="cpu-vis">${ringSvg(p.cpu)}<span class="cpu-text ${cpuCls(p.cpu)}">${p.cpu.toFixed(1)}%</span></div></td>
+    <td><div class="mem-vis"><span class="mem-text" style="color:${memColor(p.rss_mb)}">${fmtMem(p.rss_mb)}</span><div class="mem-track"><div class="mem-bar" style="width:${Math.min(p.rss_mb/20,100)}%;background:${memColor(p.rss_mb)}"></div></div></div></td>
+    <td class="cell-uptime">${fmtUptime(p.elapsed)}</td>
+    <td>${p.ports.map(pt=>`<span class="port-tag"><span class="port-dot"></span>${pt}</span>`).join("")||'<span style="color:var(--text-3)">-</span>'}</td>
+    <td>${badge}</td>
+    <td class="action-cell"><button class="kill-btn" onclick="confirmKill(${p.pid},'${esc(p.name)}','${esc(p.command)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>Kill</button></td>
+  </tr>`;
+}
+
+function ringSvg(cpu) {
+  const r=11, c=2*Math.PI*r, pct=Math.min(cpu,100), off=c-(pct/100)*c;
+  return `<div class="cpu-ring-wrap"><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="${r}" fill="none" class="ring-bg" stroke-width="2.5"/><circle cx="15" cy="15" r="${r}" fill="none" class="ring-fill" stroke="${cpuColor(cpu)}" stroke-width="2.5" stroke-dasharray="${c}" stroke-dashoffset="${off}"/></svg></div>`;
+}
+
+// ===== STATS =====
+function renderStats() {
+  const s = data.stats;
+  const apps = data.processes.filter(p => p.category === "app");
+  const ports = new Set(data.processes.flatMap(p => p.ports));
+
+  document.getElementById("sProcs").textContent = apps.length;
+  document.getElementById("sProcsD").textContent = `${data.groups.length} app groups`;
+
+  document.getElementById("sCpu").textContent = s.cpu_total ? s.cpu_total + "%" : "-";
+  document.getElementById("sCpuD").textContent = s.cpu_user ? `User ${s.cpu_user}% / Sys ${s.cpu_sys}%` : "";
+
+  const memPct = s.mem_pct || 0;
+  document.getElementById("sMem").textContent = s.used_mem_gb ? s.used_mem_gb + " GB" : "-";
+  document.getElementById("sMemD").textContent = s.total_mem_gb ? `of ${s.total_mem_gb} GB (${memPct}%)` : "";
+
+  document.getElementById("sPorts").textContent = ports.size;
+  document.getElementById("sPortsD").textContent = ports.size ? [...ports].slice(0,4).join(", ") + (ports.size>4?"...":"") : "None";
+
+  if (s.cpu_total !== undefined) { cpuHist.push(s.cpu_total); if(cpuHist.length>HLEN) cpuHist.shift(); }
+  if (s.used_mem_gb !== undefined) { memHist.push(s.used_mem_gb); if(memHist.length>HLEN) memHist.shift(); }
+
+  sparkline("cpuSpark", cpuHist, "rgba(34,211,238,0.5)", "rgba(34,211,238,0.9)");
+  sparkline("memSpark", memHist, "rgba(251,191,36,0.4)", "rgba(251,191,36,0.9)");
+
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString();
+}
+
+function sparkline(id, arr, fill, stroke) {
+  const c = document.getElementById(id);
+  if (!c || arr.length < 2) return;
+  const ctx = c.getContext("2d");
+  const dpr = devicePixelRatio || 1;
+  const w = c.offsetWidth, h = c.offsetHeight;
+  c.width = w*dpr; c.height = h*dpr;
+  ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
+
+  const mx = Math.max(...arr,1), step = w/(arr.length-1);
+
+  // Smooth curve
+  const pts = arr.map((v,i) => ({ x: i*step, y: h-(v/mx)*h*0.8 }));
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i=1; i<pts.length; i++) {
+    const cx = (pts[i-1].x+pts[i].x)/2;
+    ctx.bezierCurveTo(cx,pts[i-1].y, cx,pts[i].y, pts[i].x,pts[i].y);
+  }
+
+  // Fill
+  const last = pts[pts.length-1];
+  ctx.lineTo(last.x,h); ctx.lineTo(0,h); ctx.closePath();
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0, fill); g.addColorStop(1, "transparent");
+  ctx.fillStyle = g; ctx.fill();
+
+  // Stroke
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i=1; i<pts.length; i++) {
+    const cx = (pts[i-1].x+pts[i].x)/2;
+    ctx.bezierCurveTo(cx,pts[i-1].y, cx,pts[i].y, pts[i].x,pts[i].y);
+  }
+  ctx.strokeStyle = stroke; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+// ===== MEMORY MAP =====
+function renderMemmap() {
+  const mm = document.getElementById("memmap");
+  const tt = document.getElementById("mmTooltip");
+
+  // Combine groups and ungrouped apps, sorted by memory
+  const grouped = new Set(); data.groups.forEach(g => g.pids.forEach(p => grouped.add(p)));
+  let items = [];
+  data.groups.forEach(g => items.push({ name: g.name, rss_mb: g.rss_mb, cpu: g.cpu, type: "group", pids: g.pids }));
+  data.processes.filter(p => p.category==="app" && !grouped.has(p.pid) && p.rss_mb > 10).forEach(p =>
+    items.push({ name: p.name, rss_mb: p.rss_mb, cpu: p.cpu, type: "proc", pid: p.pid })
+  );
+  items.sort((a,b) => b.rss_mb - a.rss_mb);
+
+  const total = items.reduce((s,i) => s+i.rss_mb, 0) || 1;
+
+  mm.innerHTML = items.map((item, idx) => {
+    const pct = (item.rss_mb / total) * 100;
+    const color = COLORS[idx % COLORS.length];
+    const showLabel = pct > 6;
+    return `<div class="memmap-block" style="flex:${pct};background:${color}40;border:1px solid ${color}30;"
+      onmouseenter="showTT(event,'${esc(item.name)}','${fmtMem(item.rss_mb)} | CPU ${item.cpu.toFixed(1)}%')"
+      onmousemove="moveTT(event)" onmouseleave="hideTT()">
+      ${showLabel ? `<span class="mm-label">${esc(item.name)}</span>` : ''}
+    </div>`;
+  }).join("");
+}
+
+function showTT(e, name, detail) {
+  const tt = document.getElementById("mmTooltip");
+  tt.innerHTML = `<div class="tt-name">${name}</div><div class="tt-detail">${detail}</div>`;
+  tt.style.display = "block";
+  moveTT(e);
+}
+
+function moveTT(e) {
+  const tt = document.getElementById("mmTooltip");
+  tt.style.left = (e.clientX + 12) + "px";
+  tt.style.top = (e.clientY - 40) + "px";
+}
+
+function hideTT() { document.getElementById("mmTooltip").style.display = "none"; }
+
+// ===== RECOMMENDATIONS =====
+function renderRecs() {
+  const el = document.getElementById("recs");
+  if (!data.recommendations.length) { el.innerHTML = ""; return; }
+
+  el.innerHTML = data.recommendations.map(r => {
+    let cls = "", icon = "", btnText = "";
+    if (r.type === "free_memory") { cls = "memory"; icon = "&#9881;"; btnText = "Free Now"; }
+    else if (r.type === "cpu_hog") { cls = "cpu"; icon = "&#9888;"; btnText = "Review"; }
+    else if (r.type === "stale") { cls = "stale"; icon = "&#9203;"; btnText = "Clean Up"; }
+
+    const pids = r.items.flatMap(i => i.pids || []);
+
+    return `<div class="rec-card ${cls}">
+      <div class="rec-icon">${icon}</div>
+      <div class="rec-body">
+        <div class="rec-title">${esc(r.title)}</div>
+        <div class="rec-desc">${esc(r.desc)}</div>
+      </div>
+      <button class="rec-action" onclick="confirmKillPids([${pids.join(",")}],'${esc(r.title)}','${esc(r.desc)}')">${btnText}</button>
+    </div>`;
+  }).join("");
+}
+
+// ===== SELECTION =====
+function toggleSel(pid) { if(sel.has(pid)) sel.delete(pid); else sel.add(pid); render(); updateBar(); }
+
+function toggleGroup(name) {
+  if(expanded.has(name)) expanded.delete(name); else expanded.add(name);
+  render();
+}
+
+function toggleGroupSel(name, checked) {
+  const g = data.groups.find(x => x.name === name);
+  if(!g) return;
+  if(checked) g.pids.forEach(p => sel.add(p));
+  else g.pids.forEach(p => sel.delete(p));
+  render(); updateBar();
+}
+
+function clearSel() { sel.clear(); document.getElementById("selAll").checked=false; render(); updateBar(); }
+
+function updateBar() {
+  document.getElementById("selCount").textContent = sel.size;
+  document.getElementById("actBar").classList.toggle("show", sel.size > 0);
+}
+
+// ===== KILL =====
+function confirmKill(pid, name, cmd) {
+  document.getElementById("mTitle").textContent = "Terminate Process";
+  document.getElementById("mDesc").textContent = "This will send SIGTERM. The process may take a moment to exit.";
+  document.getElementById("mPreview").innerHTML = `<div class="mp-name">${esc(name)}</div>PID: ${pid}<br>${esc(cmd)}`;
+  document.getElementById("mConfirm").onclick = () => doKill([pid]);
+  document.getElementById("modalBg").classList.add("open");
+}
+
+function confirmKillGroup(name) {
+  const g = data.groups.find(x => x.name === name);
+  if(!g) return;
+  document.getElementById("mTitle").textContent = `Terminate ${g.name}`;
+  document.getElementById("mDesc").textContent = `Kill all ${g.count} ${g.name} processes (${fmtMem(g.rss_mb)}).`;
+  document.getElementById("mPreview").innerHTML = g.pids.map(p=>`PID: ${p}`).join("<br>");
+  document.getElementById("mConfirm").onclick = () => doKill(g.pids);
+  document.getElementById("modalBg").classList.add("open");
+}
+
+function confirmKillPids(pids, title, desc) {
+  document.getElementById("mTitle").textContent = title;
+  document.getElementById("mDesc").textContent = desc + ". Terminate these processes?";
+  document.getElementById("mPreview").innerHTML = pids.map(p => {
+    const proc = data.processes.find(x=>x.pid===p);
+    return proc ? `${proc.name} (PID: ${p})` : `PID: ${p}`;
+  }).join("<br>");
+  document.getElementById("mConfirm").onclick = () => doKill(pids);
+  document.getElementById("modalBg").classList.add("open");
+}
+
+function killSel() {
+  if(!sel.size) return;
+  const pids = [...sel];
+  document.getElementById("mTitle").textContent = `Terminate ${pids.length} Processes`;
+  document.getElementById("mDesc").textContent = "This will send SIGTERM to all selected processes.";
+  document.getElementById("mPreview").innerHTML = pids.map(p => {
+    const proc = data.processes.find(x=>x.pid===p);
+    return proc ? `${proc.name} (PID: ${p})` : `PID: ${p}`;
+  }).join("<br>");
+  document.getElementById("mConfirm").onclick = () => { doKill(pids); sel.clear(); updateBar(); };
+  document.getElementById("modalBg").classList.add("open");
+}
+
+function closeModal() { document.getElementById("modalBg").classList.remove("open"); }
+
+async function doKill(pids) {
+  closeModal();
+  try {
+    const res = await fetch("/api/kill", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ pids, signal: "TERM" })
+    });
+    const d = await res.json();
+    const ok = d.results.filter(r => r.ok).length;
+    const fail = d.results.filter(r => r.error).length;
+    if (ok) toast(`Terminated ${ok} process${ok>1?"es":""}`, "ok");
+    if (fail) toast(`${fail} failed (permission denied)`, "err");
+    pids.forEach(p => sel.delete(p)); updateBar();
+    setTimeout(loadData, 600);
+  } catch(e) { toast("Error: "+e.message, "err"); }
+}
+
+function toast(msg, type) {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  const icon = type==="ok"
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>';
+  el.innerHTML = icon + `<span>${msg}</span>`;
+  document.getElementById("toasts").appendChild(el);
+  setTimeout(()=>{el.style.opacity="0";el.style.transform="translateX(30px)";el.style.transition="all 0.3s";},2500);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// ===== DATA LOADING =====
+async function loadData() {
+  try {
+    const res = await fetch("/api/data");
+    data = await res.json();
+    renderRecs();
+    render();
+    updateBar();
+  } catch(e) { console.error(e); }
+}
+
+loadData();
+startAuto();
+</script>
+</body>
+</html>
